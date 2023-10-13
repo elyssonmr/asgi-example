@@ -1,3 +1,6 @@
+import re
+from pprint import pprint
+
 
 async def view_hello(receive, send):
     await send({
@@ -34,14 +37,16 @@ routes = [
 ]
 
 async def app(scope, receive, send):
-    from pprint import pprint
     pprint(scope)
     assert scope['type'] == 'http'
 
     for route_mapping in routes:
-        route = route_mapping[0]
+        route_pattern = f'^{scope["path"]}$'
         view = route_mapping[1]
-        if scope['path'] == route:
+        path = route_mapping[0]
+        result = re.match(route_pattern, path)
+        print('Debug:', path, result, route_pattern)
+        if result:
             await view(receive, send)
             break
     else:
